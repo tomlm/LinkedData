@@ -46,14 +46,14 @@ namespace ConsoleApp
 
             var context = new Context
             {
-                Namespaces =
+                Base = "http://schema.orders.com#",
+                Terms =
                 {
-                    { "http://schema.orders.com#", "@base" },
-                    { "http://orders.com#", "o" },
+                    { "o", new Context.TermDefinition { Id = "http://orders.com#" } }
                 }
             };
 
-            var obj = JsonLdProcessor.Process(context, g, "http://orders.com#order123");
+            var obj = JsonLdProcessor.Frame(context, g, "http://orders.com#order123");
 
             Console.WriteLine(obj);
 

@@ -6,11 +6,11 @@ namespace LinkedDataProcessor
 {
     public static class JsonLdProcessor
     {
-        public static JObject Process(Context context, IGraph graph, string root)
+        public static JObject Frame(Context context, IGraph graph, string root)
         {
             var writeContext = new WriteContext(context);
             var obj = ProcessSubject(writeContext, graph, root);
-            AddContext(obj, writeContext);
+            obj.Add("@context", context.ToJson());
             return obj;
         }
 
@@ -23,7 +23,7 @@ namespace LinkedDataProcessor
             return result;
         }
 
-        // implementation of compact processing
+        // implementation of framing/compact processing
 
         private static JToken ProcessObject(WriteContext context, IGraph graph, GraphObject o)
         {
@@ -70,11 +70,6 @@ namespace LinkedDataProcessor
                 }
             }
             return obj;
-        }
-
-        private static void AddContext(JObject obj, WriteContext context)
-        {
-            obj.Add("@context", context.ToJson());
         }
 
         // implementation of flattening processing

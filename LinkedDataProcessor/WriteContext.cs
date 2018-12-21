@@ -1,13 +1,26 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 
 namespace LinkedDataProcessor
 {
     class WriteContext
     {
+        IDictionary<string, string> _namespaces = new Dictionary<string, string>();
+
         public WriteContext(Context context)
         {
             Context = context;
+
+            foreach (var term in context.Terms)
+            {
+                if (!string.IsNullOrEmpty(term.Value.Id))
+                {
+                    _namespaces[term.Value.Id] = term.Key;
+                }
+            }
+            if (!string.IsNullOrEmpty(Context.Base))
+            {
+                _namespaces[Context.Base] = "@base";
+            }
         }
 
         public Context Context { get; }
@@ -19,7 +32,7 @@ namespace LinkedDataProcessor
             var parts = name.Split('#');
             if (parts.Length == 2)
             {
-                if (Context.Namespaces.TryGetValue(parts[0] + '#', out var value))
+                if (_namespaces.TryGetValue(parts[0] + '#', out var value))
                 {
                     if (value == "@base")
                     {
@@ -35,18 +48,6 @@ namespace LinkedDataProcessor
             }
 
             return name;
-        }
-
-        public JObject ToJson()
-        {
-            var context = new JObject();
-
-            foreach (var item in Context.Namespaces)
-            {
-                context.Add(item.Value, item.Key);
-            }
-
-            return context;
         }
     }
 }
