@@ -14,7 +14,7 @@ namespace LinkedDataProcessor
             return obj;
         }
 
-        public static IGraph Flatten(JObject obj)
+        public static IGraph CreateGraph(JObject obj)
         {
             var context = obj["@context"] as JObject;
             var readContext = new ReadContext(context);

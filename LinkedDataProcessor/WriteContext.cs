@@ -43,8 +43,6 @@ namespace LinkedDataProcessor
                         return value + ':' + parts[1];
                     }
                 }
-
-                return parts[1];
             }
 
             return name;
