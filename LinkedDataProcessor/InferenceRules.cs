@@ -17,25 +17,25 @@ namespace LinkedDataProcessor
             var schemaSchema = new Graph();
 
             // subClassOf
-            schemaSchema.Assert("subClassOf", "@type", "TransitiveProperty");
+            schemaSchema.Assert("rdfs:subClassOf", "rdf:type", "owl:TransitiveProperty");
 
             // subPropertyOf
-            schemaSchema.Assert("subPropertyOf", "@type", "TransitiveProperty");
+            schemaSchema.Assert("rdfs:subPropertyOf", "rdf:type", "owl:TransitiveProperty");
 
             // equivalentClass
-            schemaSchema.Assert("equivalentClass", "@type", "SymmetricProperty");
-            schemaSchema.Assert("equivalentClass", "subPropertyOf", "subClassOf");
+            schemaSchema.Assert("owl:equivalentClass", "rdf:type", "owl:SymmetricProperty");
+            schemaSchema.Assert("owl:equivalentClass", "rdfs:subPropertyOf", "rdfs:subClassOf");
 
             // equivalentProperty
-            schemaSchema.Assert("equivalentProperty", "@type", "SymmetricProperty");
-            schemaSchema.Assert("equivalentProperty", "subPropertyOf", "subPropertyOf");
+            schemaSchema.Assert("owl:equivalentProperty", "rdf:type", "owl:SymmetricProperty");
+            schemaSchema.Assert("owl:equivalentProperty", "rdfs:subPropertyOf", "rdfs:subPropertyOf");
 
             // inverseOf
-            schemaSchema.Assert("inverseOf", "@type", "SymmetricProperty");
+            schemaSchema.Assert("owl:inverseOf", "rdf:type", "owl:SymmetricProperty");
 
             // sameAs
-            schemaSchema.Assert("sameAs", "@type", "SymmetricProperty");
-            schemaSchema.Assert("sameAs", "@type", "TransitiveProperty");
+            schemaSchema.Assert("owl:sameAs", "rdf:type", "owl:SymmetricProperty");
+            schemaSchema.Assert("owl:sameAs", "rdf:type", "owl:TransitiveProperty");
 
             SchemaSchemaRules = InferenceRules.InnerCreateFromSchema(schemaSchema);
         }
@@ -78,7 +78,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> Range(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("range").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("rdfs:range").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplyRange(g, t.Subject, t.Object.Id));
             }
@@ -89,7 +89,7 @@ namespace LinkedDataProcessor
         {
             foreach (var t in g.GetByPredicate(p).Where(t => t.Object.IsID).ToList())
             {
-                g.Assert(t.Object.Id, "@type", c);
+                g.Assert(t.Object.Id, "rdf:type", c);
             }
         }
 
@@ -99,7 +99,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> Domain(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("domain").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("rdfs:domain").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplyDomain(g, t.Subject, t.Object.Id));
             }
@@ -110,7 +110,7 @@ namespace LinkedDataProcessor
         {
             foreach (var t in g.GetByPredicate(p).ToList())
             {
-                g.Assert(t.Subject, "@type", c);
+                g.Assert(t.Subject, "rdf:type", c);
             }
         }
 
@@ -120,7 +120,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> SubClassOf(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("subClassOf").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("rdfs:subClassOf").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplySubClassOf(g, t.Subject, t.Object.Id));
             }
@@ -129,9 +129,9 @@ namespace LinkedDataProcessor
 
         private static void ApplySubClassOf(IGraph g, string a, string b)
         {
-            foreach (var t in g.GetByPredicateObject("@type", a).ToList())
+            foreach (var t in g.GetByPredicateObject("rdf:type", a).ToList())
             {
-                g.Assert(t.Subject, "@type", b);
+                g.Assert(t.Subject, "rdf:type", b);
             }
         }
 
@@ -141,7 +141,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> SubPropertyOf(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("subPropertyOf").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("rdfs:subPropertyOf").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplySubPropertyOf(g, t.Subject, t.Object.Id));
             }
@@ -162,7 +162,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> InverseOf(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("inverseOf").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("owl:inverseOf").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplyInverseOf(g, t.Subject, t.Object.Id));
             }
@@ -183,7 +183,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> SymmetricProperty(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicateObject("@type", "SymmetricProperty"))
+            foreach (var t in schema.GetByPredicateObject("rdf:type", "owl:SymmetricProperty"))
             {
                 result.Add((g) => ApplySymmetricProperty(g, t.Subject));
             }
@@ -204,7 +204,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> TransitiveProperty(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicateObject("@type", "TransitiveProperty"))
+            foreach (var t in schema.GetByPredicateObject("rdf:type", "owl:TransitiveProperty"))
             {
                 result.Add((g) => ApplyTransitiveProperty(g, t.Subject));
             }
@@ -233,7 +233,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> SameAs(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicate("sameAs").Where(t => t.Object.IsID))
+            foreach (var t in schema.GetByPredicate("owl:sameAs").Where(t => t.Object.IsID))
             {
                 result.Add((g) => ApplySameAs(g, t.Subject, t.Object.Id));
             }
@@ -254,11 +254,11 @@ namespace LinkedDataProcessor
         {
             if (!x.Equals(y))
             {
-                triples.Add(new Triple(x, "sameAs", y));
+                triples.Add(new Triple(x, "owl:sameAs", y));
             }
             foreach (var t in g.GetBySubject(x))
             {
-                if (!t.Predicate.Equals("sameAs"))
+                if (!t.Predicate.Equals("owl:sameAs"))
                 {
                     triples.Add(new Triple(y, t.Predicate, t.Object));
                 }
@@ -269,7 +269,7 @@ namespace LinkedDataProcessor
             }
             foreach (var t in g.GetByObject(x))
             {
-                if (!t.Predicate.Equals("sameAs"))
+                if (!t.Predicate.Equals("owl:sameAs"))
                 {
                     triples.Add(new Triple(t.Subject, t.Predicate, y));
                 }
@@ -282,7 +282,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> FunctionalProperty(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicateObject("@type", "FunctionalProperty"))
+            foreach (var t in schema.GetByPredicateObject("rdf:type", "owl:FunctionalProperty"))
             {
                 result.Add((g) => ApplyFunctionalProperty(g, t.Subject));
             }
@@ -318,7 +318,7 @@ namespace LinkedDataProcessor
         private static IEnumerable<Action<IGraph>> InverseFunctionalProperty(IGraph schema)
         {
             var result = new List<Action<IGraph>>();
-            foreach (var t in schema.GetByPredicateObject("@type", "InverseFunctionalProperty"))
+            foreach (var t in schema.GetByPredicateObject("rdf:type", "owl:InverseFunctionalProperty"))
             {
                 result.Add((g) => ApplyInverseFunctionalProperty(g, t.Subject));
             }

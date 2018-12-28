@@ -84,9 +84,9 @@ namespace ConsoleApp
         static void Example4()
         {
             var schema = new Graph();
-            schema.Assert("http://schema.com#employee", "inverseOf", "http://schema.com#employer");
-            schema.Assert("http://schema.com#employee", "domain", "http://schema.com#Company");
-            schema.Assert("http://schema.com#employee", "range", "http://schema.com#Person");
+            schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
+            schema.Assert("http://schema.com#employee", "rdfs:domain", "http://schema.com#Company");
+            schema.Assert("http://schema.com#employee", "rdfs:range", "http://schema.com#Person");
 
             var graph = new Graph();
             graph.Assert("http://person.com#bob", "http://schema.com#employer", "http://person.com#acme");
@@ -104,9 +104,9 @@ namespace ConsoleApp
         static void Example5()
         {
             var schema = new Graph();
-            schema.Assert("http://schema.com#employee", "inverseOf", "http://schema.com#employer");
-            schema.Assert("http://schema.com#employee", "domain", "http://schema.com#Company");
-            schema.Assert("http://schema.com#employee", "range", "http://schema.com#Person");
+            schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
+            schema.Assert("http://schema.com#employee", "rdfs:domain", "http://schema.com#Company");
+            schema.Assert("http://schema.com#employee", "rdfs:range", "http://schema.com#Person");
 
             var graph = new Graph();
             graph.Assert("http://person.com#bob", "http://schema.com#employer", "http://person.com#acme");
@@ -136,13 +136,27 @@ namespace ConsoleApp
             }
         }
 
+        static void Example6()
+        {
+            var schema = new Graph();
+            schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
+            schema.Assert("http://schema.com#employee", "rdfs:domain", "http://schema.com#Company");
+            schema.Assert("http://schema.com#employee", "rdfs:range", "http://schema.com#Person");
+
+            foreach (var t in schema.GetTriples())
+            {
+                Console.WriteLine(t);
+            }
+        }
+
         static void Main(string[] args)
         {
-            Example1();
+            //Example1();
             //Example2();
             //Example3();
-            //Example4();
+            Example4();
             //Example5();
+            //Example6();
         }
     }
 }
