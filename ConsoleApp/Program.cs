@@ -1,15 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using LinkedDataProcessor;
+﻿using LinkedDataProcessor;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Schema.NET;
+using System;
 
 namespace ConsoleApp
 {
-    class Program
+    internal class Program
     {
-        static void Example1()
+        private static void Example1()
         {
             var g = new Graph();
             g.Assert("http://orders.com#order123", "http://schema.orders.com#address", "http://orders.com#address123");
@@ -48,7 +46,7 @@ namespace ConsoleApp
             }
         }
 
-        static void Example2()
+        private static void Example2()
         {
             var g = new Graph();
             g.Assert("http://person.com#bob", "http://schema.com#employer", "http://person.com#acme");
@@ -74,7 +72,7 @@ namespace ConsoleApp
             }
         }
 
-        static void Example3()
+        private static void Example3()
         {
             var data = new Graph();
             data.Assert("http://person.com#bob", "http://schema.com#employer", "http://person.com#acme");
@@ -85,7 +83,7 @@ namespace ConsoleApp
             Console.WriteLine(JsonLdProcessor.Frame(new Context { Base = "http://schema.com#" }, data, "http://person.com#bob"));
         }
 
-        static void Example4()
+        private static void Example4()
         {
             var schema = new Graph();
             schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
@@ -105,7 +103,7 @@ namespace ConsoleApp
             }
         }
 
-        static void Example5()
+        private static void Example5()
         {
             var schema = new Graph();
             schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
@@ -140,7 +138,7 @@ namespace ConsoleApp
             }
         }
 
-        static void Example6()
+        private static void Example6()
         {
             var schema = new Graph();
             schema.Assert("http://schema.com#employee", "owl:inverseOf", "http://schema.com#employer");
@@ -153,7 +151,7 @@ namespace ConsoleApp
             }
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //Example1();
             //Example2();
@@ -164,7 +162,7 @@ namespace ConsoleApp
             ExampleSchemaNet();
         }
 
-        static void ExampleSchemaNet()
+        private static void ExampleSchemaNet()
         {
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
             {
@@ -175,10 +173,7 @@ namespace ConsoleApp
             var context = new Context
             {
                 Base = "http://schema.org",
-                Terms =
-                {
-                    { "o", new Context.TermDefinition { Id = "http://orders.com" } }
-                }
+                Terms = { { "o", new Context.TermDefinition { Id = "http://orders.com" } } }
             };
 
             var graph = new Graph();
@@ -190,6 +185,9 @@ namespace ConsoleApp
                 Gender = GenderType.Female
             };
 
+            // add Joe to graph
+            graph.Merge(JsonLdProcessor.CreateGraph(joe));
+
             var sarah = new Person()
             {
                 Id = new Uri("http://schema.org/Person#0987654321"),
@@ -197,29 +195,33 @@ namespace ConsoleApp
                 FamilyName = "Smith",
                 Gender = GenderType.Female
             };
-            var joeGraph = JsonLdProcessor.CreateGraph(joe);
-            graph.Merge(joeGraph);
 
-            var sarahGraph = JsonLdProcessor.CreateGraph(sarah);
-            graph.Merge(sarahGraph);
+            // add Sarah to graph
+            graph.Merge(JsonLdProcessor.CreateGraph(sarah));
 
+            // add spouse relationships between the 2 Person objects
+            // NOTE: This uses the JsonLd.Id and context to create Uris and validates that Spouse is actual property on the source object
             graph.Assert(joe, "Spouse", sarah);
             graph.Assert(sarah, "Spouse", joe);
 
+            // dump triples
             Console.WriteLine("---triples---- ");
             foreach (var triple in graph.GetTriples())
             {
                 Console.WriteLine($"  {triple}");
             }
 
+            // dump joe nodes as JsObject
             var jsJoe = JsonLdProcessor.Frame(context, graph, "http://schema.org/Person#1234567890");
             Console.WriteLine("---JSObject ---- ");
             Console.WriteLine(jsJoe);
 
+            // get joe as Person object
             var joe2 = JsonLdProcessor.AsObject<Person>(context, graph, "http://schema.org/Person#1234567890");
             Console.WriteLine("---POCO object---- ");
             Console.WriteLine(JsonConvert.SerializeObject(joe2, Formatting.Indented));
 
+            // Get joe as Person object
             var sarah2 = JsonLdProcessor.AsObject<Person>(context, graph, "http://schema.org/Person#0987654321");
             Console.WriteLine("---POCO object---- ");
             Console.WriteLine(JsonConvert.SerializeObject(sarah2, Formatting.Indented));
