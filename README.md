@@ -1,7 +1,7 @@
 # LinkedData
 JSON-LD support and some RDFS+ inference logic
 
-## Schemma.Net version
+## Schema.Net version
 Schema.Net is a a package which has all of schema.net as POCO objects, derived from base JsonLdObject class.
 
 This repo tweaks the LinkedData library to support working with this library
