@@ -1,4 +1,6 @@
 ﻿
+using Schema.NET;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +37,21 @@ namespace LinkedDataProcessor
         public bool Assert(Triple t)
         {
             return Assert(t.Subject, t.Predicate, t.Object);
+        }
+
+        public bool Assert(JsonLdObject source, string p, JsonLdObject target)
+        {
+            if (source.GetType().GetProperty(p) == null)
+            {
+                throw new MissingMemberException(p);
+            }
+
+            if (!Uri.IsWellFormedUriString(p, UriKind.Absolute))
+            {
+                var name = char.ToLower(p[0]) + p.Substring(1); 
+                p = new Uri(new Uri(source.Context), new Uri("#" + name, UriKind.Relative)).ToString();
+            }
+            return Assert(source.Id.ToString(), p, target.Id.ToString());
         }
 
         public bool Assert(string s, string p, GraphObject o)

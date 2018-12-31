@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LinkedDataProcessor
 {
-    class WriteContext
+    internal class WriteContext
     {
-        IDictionary<string, string> _namespaces = new Dictionary<string, string>();
+        private IDictionary<string, string> _namespaces = new Dictionary<string, string>();
 
         public WriteContext(Context context)
         {
@@ -42,6 +43,10 @@ namespace LinkedDataProcessor
                     {
                         return value + ':' + parts[1];
                     }
+                }
+                else if (new Uri(parts[0]) == new Uri(this.Context.Base))
+                {
+                    return parts[1];
                 }
             }
 

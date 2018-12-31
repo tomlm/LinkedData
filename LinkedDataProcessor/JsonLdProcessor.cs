@@ -1,22 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Schema.NET;
 
 namespace LinkedDataProcessor
 {
     public static class JsonLdProcessor
     {
+        public static ObjectT AsObject<ObjectT>(Context context, IGraph graph, string root)
+        {
+            return Frame(context, graph, root).ToObject<ObjectT>();
+        }
+
+
         public static JObject Frame(Context context, IGraph graph, string root)
         {
             var writeContext = new WriteContext(context);
             var obj = ProcessSubject(writeContext, graph, root);
-            obj.Add("@context", context.ToJson());
+            if (!obj.ContainsKey("@context"))
+                obj.Add("@context", context.ToJson());
             return obj;
+        }
+
+        public static IGraph CreateGraph(JsonLdObject obj)
+        {
+            return CreateGraph(JObject.FromObject(obj));
         }
 
         public static IGraph CreateGraph(JObject obj)
         {
-            var context = obj["@context"] as JObject;
+            var context = obj["@context"] as JToken;
             var readContext = new ReadContext(context);
             var result = new Graph();
             FlattenJObject(readContext, obj, result);
@@ -76,10 +90,11 @@ namespace LinkedDataProcessor
 
         private static string FlattenJObject(ReadContext context, JObject obj, IGraph result)
         {
-            var id = obj["@id"];
-            if (id != null)
+            var idV = obj["@id"];
+            if (idV != null)
             {
-                var expandedId = context.GetFullName(id.Value<string>());
+                var id = idV.HasValues ? idV.Value<string>() : idV.ToString();
+                var expandedId = context.GetFullName(id);
 
                 foreach (var property in obj)
                 {

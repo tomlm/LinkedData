@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LinkedDataProcessor;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Schema.NET;
 
 namespace ConsoleApp
 {
@@ -154,9 +158,72 @@ namespace ConsoleApp
             //Example1();
             //Example2();
             //Example3();
-            Example4();
+            //Example4();
             //Example5();
             //Example6();
+            ExampleSchemaNet();
+        }
+
+        static void ExampleSchemaNet()
+        {
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Auto
+            };
+
+            var context = new Context
+            {
+                Base = "http://schema.org",
+                Terms =
+                {
+                    { "o", new Context.TermDefinition { Id = "http://orders.com" } }
+                }
+            };
+
+            var graph = new Graph();
+            var joe = new Person()
+            {
+                Id = new Uri("http://schema.org/Person#1234567890"),
+                Name = "Joe",
+                FamilyName = "Smith",
+                Gender = GenderType.Female
+            };
+
+            var sarah = new Person()
+            {
+                Id = new Uri("http://schema.org/Person#0987654321"),
+                Name = "Sarah",
+                FamilyName = "Smith",
+                Gender = GenderType.Female
+            };
+            var joeGraph = JsonLdProcessor.CreateGraph(joe);
+            graph.Merge(joeGraph);
+
+            var sarahGraph = JsonLdProcessor.CreateGraph(sarah);
+            graph.Merge(sarahGraph);
+
+            graph.Assert(joe, "Spouse", sarah);
+            graph.Assert(sarah, "Spouse", joe);
+
+            Console.WriteLine("---triples---- ");
+            foreach (var triple in graph.GetTriples())
+            {
+                Console.WriteLine($"  {triple}");
+            }
+
+            var jsJoe = JsonLdProcessor.Frame(context, graph, "http://schema.org/Person#1234567890");
+            Console.WriteLine("---JSObject ---- ");
+            Console.WriteLine(jsJoe);
+
+            var joe2 = JsonLdProcessor.AsObject<Person>(context, graph, "http://schema.org/Person#1234567890");
+            Console.WriteLine("---POCO object---- ");
+            Console.WriteLine(JsonConvert.SerializeObject(joe2, Formatting.Indented));
+
+            var sarah2 = JsonLdProcessor.AsObject<Person>(context, graph, "http://schema.org/Person#0987654321");
+            Console.WriteLine("---POCO object---- ");
+            Console.WriteLine(JsonConvert.SerializeObject(sarah2, Formatting.Indented));
+
         }
     }
 }

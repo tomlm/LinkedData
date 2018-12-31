@@ -1,27 +1,35 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace LinkedDataProcessor
 {
-    class ReadContext
+    internal class ReadContext
     {
-        private IDictionary<string, string> _namespaces = new Dictionary<string, string>();
+        private IDictionary<string, Uri> _namespaces = new Dictionary<string, Uri>();
 
-        private string _base;
+        private Uri _base;
 
-        public ReadContext(JObject obj)
+        public ReadContext(JToken token)
         {
-            foreach (var property in obj)
+            if (token is JValue val)
             {
-                var value = property.Value.Value<string>();
+                _base = new Uri(token.ToString().TrimEnd('#') + '#');
+            }
+            else if (token is JObject obj)
+            {
+                foreach (var property in obj)
+                {
+                    var value = property.Value.Value<string>();
 
-                if (property.Key == "@base")
-                {
-                    _base = value;
-                }
-                else
-                {
-                    _namespaces[property.Key] = value;
+                    if (property.Key == "@base")
+                    {
+                        _base = new Uri(value.TrimEnd('#') + '#');
+                    }
+                    else
+                    {
+                        _namespaces[property.Key] = new Uri(value);
+                    }
                 }
             }
         }
@@ -45,7 +53,7 @@ namespace LinkedDataProcessor
             {
                 if (_base != null)
                 {
-                    return _base + name;
+                    return _base.ToString() + name;
                 }
                 else
                 {
