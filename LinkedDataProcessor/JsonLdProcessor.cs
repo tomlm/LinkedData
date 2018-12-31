@@ -67,7 +67,7 @@ namespace LinkedDataProcessor
         {
             var obj = new JObject
             {
-                { "@id", context.GetName(root) }
+                { "@id", root }
             };
 
             if (!context.Subjects.Contains(root))

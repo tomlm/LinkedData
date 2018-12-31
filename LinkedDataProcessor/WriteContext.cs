@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace LinkedDataProcessor
 {
@@ -30,27 +29,32 @@ namespace LinkedDataProcessor
 
         public string GetName(string name)
         {
-            var parts = name.Split('#');
-            if (parts.Length == 2)
+            if (name.StartsWith(Context.Base))
             {
-                if (_namespaces.TryGetValue(parts[0] + '#', out var value))
-                {
-                    if (value == "@base")
-                    {
-                        return parts[1];
-                    }
-                    else
-                    {
-                        return value + ':' + parts[1];
-                    }
-                }
-                else if (new Uri(parts[0]) == new Uri(this.Context.Base))
-                {
-                    return parts[1];
-                }
+                return name.Substring(Context.Base.Length + 1);
             }
-
             return name;
+            //var parts = name.Split('#');
+            //if (parts.Length == 2)
+            //{
+            //    if (_namespaces.TryGetValue(parts[0] + '#', out var value))
+            //    {
+            //        if (value == "@base")
+            //        {
+            //            return parts[1];
+            //        }
+            //        else
+            //        {
+            //            return value + ':' + parts[1];
+            //        }
+            //    }
+            //    else if (new Uri(parts[0]) == new Uri(this.Context.Base))
+            //    {
+            //        return parts[1];
+            //    }
+            //}
+
+            //return name;
         }
     }
 }

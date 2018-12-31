@@ -49,7 +49,7 @@ namespace LinkedDataProcessor
             if (!Uri.IsWellFormedUriString(p, UriKind.Absolute))
             {
                 var name = char.ToLower(p[0]) + p.Substring(1); 
-                p = new Uri(new Uri(source.Context), new Uri("#" + name, UriKind.Relative)).ToString();
+                p = new Uri(new Uri(source.Context), new Uri(name, UriKind.Relative)).ToString();
             }
             return Assert(source.Id.ToString(), p, target.Id.ToString());
         }

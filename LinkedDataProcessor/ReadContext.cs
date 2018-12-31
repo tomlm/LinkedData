@@ -14,7 +14,7 @@ namespace LinkedDataProcessor
         {
             if (token is JValue val)
             {
-                _base = new Uri(token.ToString().TrimEnd('#') + '#');
+                _base = new Uri(token.ToString());
             }
             else if (token is JObject obj)
             {
@@ -24,7 +24,7 @@ namespace LinkedDataProcessor
 
                     if (property.Key == "@base")
                     {
-                        _base = new Uri(value.TrimEnd('#') + '#');
+                        _base = new Uri(value);
                     }
                     else
                     {
